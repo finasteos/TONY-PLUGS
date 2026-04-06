@@ -3,6 +3,7 @@ import { LineCharacter } from "./components/LineCharacter";
 import { VSTPlugin } from "./components/VSTPlugin";
 import { LineUI } from "./components/LineUI";
 import { LinusWaveform } from "./components/WaveformPrototype";
+import { JuceReference } from "./components/JuceReference";
 import { Info, Palette, Music, Layout, ArrowDown, Cpu, Terminal, Code } from "lucide-react";
 
 export default function App() {
@@ -24,7 +25,7 @@ export default function App() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="z-10 text-center px-4"
         >
-          <h1 className="text-7xl md:text-9xl font-black uppercase tracking-tighter mb-4">
+          <h1 className="text-7xl md:text-9xl font-black uppercase tracking-tighter text-white leading-none mb-4 drop-shadow-[12px_12px_0px_rgba(0,0,0,1)]">
             LA LINEA
           </h1>
           <p className="text-xl md:text-2xl font-medium max-w-2xl mx-auto opacity-90 leading-relaxed mb-12">
@@ -103,7 +104,7 @@ export default function App() {
 
       {/* VST Plugin Section */}
       <section className="bg-black py-32 px-8">
-        <div className="max-w-5xl mx-auto space-y-16">
+        <div className="max-w-5xl mx-auto space-y-24">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 text-white">
               <Music className="w-10 h-10" />
@@ -114,6 +115,14 @@ export default function App() {
             </p>
           </div>
           <VSTPlugin />
+          
+          <div className="space-y-12">
+            <div className="flex items-center gap-4 text-white">
+              <Code className="w-8 h-8" />
+              <h3 className="text-3xl font-black uppercase tracking-tighter">Porting Reference (C++)</h3>
+            </div>
+            <JuceReference />
+          </div>
         </div>
       </section>
 

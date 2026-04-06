@@ -45,9 +45,12 @@ export const LinusWaveform = ({
     let d = "";
     points.forEach((p, i) => {
       const x = i * step;
-      // Add the "Linus Wobble" - subtle imperfection
-      const wobble = isWobbly ? Math.sin(i * 0.1 + phase) * 3 : 0;
-      const y = (height / 2) + (p * height * 0.4) + wobble;
+      // Primary Wobble (Fast)
+      const wobble1 = isWobbly ? Math.sin(i * 0.1 + phase) * 3 : 0;
+      // Secondary Wobble (Slow - Kimi's Pro Tip)
+      const wobble2 = isWobbly ? Math.sin(i * 0.03 + phase * 0.5) * 1.5 : 0;
+      
+      const y = (height / 2) + (p * height * 0.4) + wobble1 + wobble2;
       
       if (i === 0) d += `M ${x} ${y}`;
       else d += ` L ${x} ${y}`;
@@ -55,6 +58,10 @@ export const LinusWaveform = ({
     
     return d;
   };
+
+  // Calculate dynamic thickness based on average amplitude
+  const avgAmp = points.reduce((acc, p) => acc + Math.abs(p), 0) / points.length;
+  const dynamicThickness = lineThickness + (avgAmp * 4);
 
   return (
     <div 
@@ -77,13 +84,13 @@ export const LinusWaveform = ({
         <motion.path
           d={generatePath()}
           stroke="white"
-          strokeWidth={lineThickness}
+          strokeWidth={dynamicThickness}
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
           filter="url(#inkBleed)"
           animate={{ 
-            strokeWidth: [lineThickness, lineThickness * 1.2, lineThickness * 0.9, lineThickness] 
+            strokeWidth: [dynamicThickness, dynamicThickness * 1.1, dynamicThickness * 0.9, dynamicThickness] 
           }}
           transition={{ 
             duration: 3, 
@@ -93,7 +100,7 @@ export const LinusWaveform = ({
         />
       </svg>
       <div className="absolute top-4 left-6 text-[10px] font-black text-white uppercase tracking-widest opacity-50">
-        Variable Width Waveform
+        Advanced Wobble + Amp-Width
       </div>
     </div>
   );
