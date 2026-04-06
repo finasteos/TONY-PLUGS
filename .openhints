@@ -1,0 +1,41 @@
+# TONY-PLUGS Project Hints
+# This file is read by all OpenCode instances working on this project.
+
+## Project Type
+JUCE-based VST plugin (C++) with React/TypeScript design system prototype.
+
+## Architecture
+- `/src/` — React/Vite TypeScript prototype (design system, interaction testing)
+- `/juce/` — Production JUCE C++ plugin code
+- `/docs/` — Documentation, style guides, agent roster
+- `/.opencode/` — Agent configurations
+- `/.viking/` — Shared memory, preferences, skills
+
+## Key Rules
+1. NO AAX format — only VST3, AU, Standalone
+2. NO Projucer — pure CMake builds
+3. C++17 minimum for JUCE code
+4. Visual style = "La Linea" / Linus på linjen (thick white lines, bold backgrounds)
+5. Colors: #1E5AA8 (blue), #2E8B57 (green), #F4D03F (yellow), white lines, black borders
+6. Knob thickness: 12px. Waveform thickness: 6px. Always rounded caps.
+7. Test interaction patterns in TypeScript FIRST, then port to JUCE C++
+8. Audio thread: NO memory allocation, NO mutexes, NO UI calls
+9. Parameters via AudioProcessorValueTreeState only
+10. Animation via juce::Timer at 30-60fps
+
+## File References
+- Style guide: docs/STYLE_GUIDE.md
+- Agent roles: docs/AGENTS.md
+- Skills catalog: docs/SKILLS.md
+- Viking preferences: .viking/preferences/linus-style.yaml
+
+## Build
+```bash
+# React prototype
+npm install && npm run dev
+
+# JUCE plugin
+cd juce && mkdir -p build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . --parallel
+```

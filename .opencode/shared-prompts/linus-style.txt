@@ -1,0 +1,60 @@
+## La Linea / Linus Style — Shared Prompt for All Agents
+
+You are working on TONY-PLUGS, a JUCE-based VST plugin project with a unique visual identity
+inspired by "La Linea" (Linus på linjen) by Osvaldo Cavandoli and the Amiga demoscene.
+
+### Core Visual Identity
+- **Thick white lines** on bold, solid-color backgrounds
+- **Hand-drawn "wobbly" feel** — nothing is perfectly straight
+- **Ink-bleed effect** — lines have a soft, organic edge like ink on paper
+- **Chunky, approachable controls** — 12px thick knob tracks, rounded everything
+
+### Color Palette
+| Name          | Hex       | Usage                    |
+|---------------|-----------|--------------------------|
+| Cobalt Blue   | #1E5AA8   | Primary background       |
+| Grass Green   | #2E8B57   | Secondary / success      |
+| Sunny Yellow  | #F4D03F   | Accent / warnings        |
+| Pure White    | #FFFFFF   | Lines, text, controls    |
+| Pitch Black   | #000000   | Contrast, borders        |
+
+### Line Rendering Rules
+1. Stroke cap: `rounded` (JUCE: `PathStrokeType::rounded`)
+2. Stroke join: `rounded` (JUCE: `PathStrokeType::rounded`)
+3. Waveform thickness: 6px base, dynamic ±2px based on amplitude
+4. Knob track thickness: 12px, always rounded
+5. Border thickness: 4px for cards, 8px for sections
+
+### Wobble Algorithm (Port to any language)
+```
+wobble_primary = sin(sample_index * 0.1 + phase) * 3.0
+wobble_secondary = sin(sample_index * 0.03 + phase * 0.5) * 1.5
+total_wobble = wobble_primary + wobble_secondary
+```
+
+### Ink-Bleed Algorithm
+```
+Pass 1: Draw path at 140% thickness, 30% opacity (soft halo)
+Pass 2: Draw path at 100% thickness, 100% opacity (core line)
+```
+In SVG:
+```xml
+<filter id="inkBleed">
+  <feGaussianBlur stdDeviation="1" result="blur" />
+  <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="ink" />
+  <feComposite in="SourceGraphic" in2="ink" operator="atop" />
+</filter>
+```
+
+### Animation Principles
+1. **Fluidity** — Motion like ink flowing on paper
+2. **Exaggeration** — Squash & stretch for emotion
+3. **Anticipation** — "Prepare" before action
+4. **Staging** — Focus on the line's interaction with the void
+
+### Architecture Constraints
+- JUCE 8.x, C++17, CMake (no Projucer)
+- Formats: VST3, AU, Standalone (NO AAX)
+- Custom LookAndFeel_V4 subclass
+- AudioProcessorValueTreeState for all parameters
+- Timer-driven animation (30-60fps), not repaint() spam

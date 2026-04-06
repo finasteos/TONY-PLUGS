@@ -1,0 +1,56 @@
+# OpenViking Configuration — TONY-PLUGS
+# https://github.com/finasteos/TONY-PLUGS
+
+project:
+  name: tony-plugs
+  description: "JUCE VST plugin with La Linea / Linus på linjen design language"
+  version: "0.1.0"
+
+# Resource URIs — accessible by all agents via viking://
+resources:
+  - uri: viking://resources/tony-plugs-src/
+    path: ./src
+    description: "React/TypeScript prototype source code"
+
+  - uri: viking://resources/tony-plugs-juce/
+    path: ./juce/src
+    description: "JUCE C++ plugin source code"
+
+  - uri: viking://resources/tony-plugs-docs/
+    path: ./docs
+    description: "Project documentation"
+
+# User preferences — shared design tokens
+preferences:
+  uri: viking://user/preferences/
+  config_file: ./preferences/linus-style.yaml
+
+# Agent skills — reusable patterns
+skills:
+  uri: viking://agent/skills/
+  directory: ./skills/
+
+# Agent registry
+agents:
+  - name: qwen-coder
+    model: qwen-3.6-plus
+    reasoning: medium
+    role: daily-coding
+
+  - name: qwen-debugger
+    model: qwen-3.6-plus
+    reasoning: high
+    role: debugging
+
+  - name: minimax-planner
+    model: minimax-m2.5
+    role: architecture
+
+  - name: nemotron-refactor
+    model: nemotron-3-super
+    role: refactoring
+
+  - name: qwen-docs
+    model: qwen-3.6-plus
+    context: 1M
+    role: documentation

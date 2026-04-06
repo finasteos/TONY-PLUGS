@@ -1,0 +1,73 @@
+# La Linea Style Preferences
+# viking://user/preferences/linus-style
+# Shared design tokens for all agents
+
+palette:
+  primary:
+    name: "Cobalt Blue"
+    hex: "#1E5AA8"
+    rgb: [30, 90, 168]
+    juce: "juce::Colour(0x1E, 0x5A, 0xA8)"
+    usage: "Primary plugin background, header sections"
+
+  secondary:
+    name: "Grass Green"
+    hex: "#2E8B57"
+    rgb: [46, 139, 87]
+    juce: "juce::Colour(0x2E, 0x8B, 0x57)"
+    usage: "Success states, secondary backgrounds"
+
+  accent:
+    name: "Sunny Yellow"
+    hex: "#F4D03F"
+    rgb: [244, 208, 63]
+    juce: "juce::Colour(0xF4, 0xD0, 0x3F)"
+    usage: "Accent, highlights, warnings, call-to-action"
+
+  line:
+    name: "Pure White"
+    hex: "#FFFFFF"
+    juce: "juce::Colours::white"
+    usage: "All lines, text, controls, waveforms"
+
+  contrast:
+    name: "Pitch Black"
+    hex: "#000000"
+    juce: "juce::Colours::black"
+    usage: "Borders, separators, waveform backgrounds"
+
+line_rendering:
+  waveform_thickness: 6.0
+  knob_track_thickness: 12.0
+  border_card: 4.0
+  border_section: 8.0
+  stroke_cap: "rounded"   # PathStrokeType::rounded
+  stroke_join: "rounded"   # PathStrokeType::rounded
+
+wobble:
+  primary_frequency: 0.1
+  primary_amplitude: 3.0
+  secondary_frequency: 0.03
+  secondary_amplitude: 1.5
+  phase_speed: 0.05          # radians per frame
+
+ink_bleed:
+  method: "multi-pass"
+  halo_thickness_multiplier: 1.4
+  halo_alpha: 0.3
+  svg_blur_deviation: 1.0
+  svg_color_matrix: "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+
+animation:
+  fps_target: 60
+  wobble_update_rate: 30     # wobble phase update Hz
+  spring_stiffness: 100
+  transition_duration: 0.3    # seconds
+
+typography:
+  primary_font: "Inter"
+  mono_font: "JetBrains Mono"
+  weight_label: 900          # font-black
+  weight_value: 700          # font-bold
+  label_case: "uppercase"
+  letter_spacing: "0.1em"

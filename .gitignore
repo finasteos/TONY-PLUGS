@@ -1,8 +1,45 @@
+# Dependencies
 node_modules/
 build/
 dist/
 coverage/
+
+# OS
 .DS_Store
 *.log
+Thumbs.db
+
+# Environment & Secrets
 .env*
 !.env.example
+.venv/
+
+# JUCE / C++ Build
+juce/build/
+juce/cmake-build-*/
+juce/JUCE/
+*.o
+*.d
+*.dylib
+*.a
+*.so
+
+# IDE
+.vscode/settings.json
+.idea/
+*.xcodeproj/
+*.xcworkspace/
+*.pbxuser
+*.mode*
+xcuserdata/
+
+# OpenViking cache
+.viking/cache/
+.viking/.state/
+
+# OpenCode state
+.opencode/.state/
+.opencode/.cache/
+
+# Codacy (AI Studio legacy)
+.github/instructions/codacy.instructions.md
