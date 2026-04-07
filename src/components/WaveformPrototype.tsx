@@ -7,10 +7,10 @@ interface WaveformProps {
   isWobbly?: boolean;
 }
 
-export const LinusWaveform = ({ 
-  color = "#1E5AA8", 
+export const LinusWaveform = ({
+  color = "#1E5AA8",
   lineThickness = 6,
-  isWobbly = true 
+  isWobbly = true
 }: WaveformProps) => {
   const [phase, setPhase] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,11 +37,11 @@ export const LinusWaveform = ({
 
   const generatePath = () => {
     if (points.length === 0) return "";
-    
+
     const width = 800;
     const height = 200;
     const step = width / (points.length - 1);
-    
+
     let d = "";
     points.forEach((p, i) => {
       const x = i * step;
@@ -49,13 +49,13 @@ export const LinusWaveform = ({
       const wobble1 = isWobbly ? Math.sin(i * 0.1 + phase) * 3 : 0;
       // Secondary Wobble (Slow - Kimi's Pro Tip)
       const wobble2 = isWobbly ? Math.sin(i * 0.03 + phase * 0.5) * 1.5 : 0;
-      
+
       const y = (height / 2) + (p * height * 0.4) + wobble1 + wobble2;
-      
+
       if (i === 0) d += `M ${x} ${y}`;
       else d += ` L ${x} ${y}`;
     });
-    
+
     return d;
   };
 
@@ -64,18 +64,18 @@ export const LinusWaveform = ({
   const dynamicThickness = lineThickness + (avgAmp * 4);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="w-full h-48 rounded-3xl border-4 border-black overflow-hidden relative shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
       style={{ backgroundColor: color }}
     >
-      <svg 
-        viewBox="0 0 800 200" 
+      <svg
+        viewBox="0 0 800 200"
         className="w-full h-full preserve-3d"
         preserveAspectRatio="none"
       >
         <defs>
-          <filter id="inkBleed">
+          <filter id="inkBleedWaveform">
             <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
             <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="ink" />
             <feComposite in="SourceGraphic" in2="ink" operator="atop" />
@@ -88,14 +88,14 @@ export const LinusWaveform = ({
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
-          filter="url(#inkBleed)"
-          animate={{ 
-            strokeWidth: [dynamicThickness, dynamicThickness * 1.1, dynamicThickness * 0.9, dynamicThickness] 
+          filter="url(#inkBleedWaveform)"
+          animate={{
+            strokeWidth: [dynamicThickness, dynamicThickness * 1.1, dynamicThickness * 0.9, dynamicThickness]
           }}
-          transition={{ 
-            duration: 3, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
           }}
         />
       </svg>

@@ -52,9 +52,11 @@ void TonyPlugsProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     spec.numChannels = getTotalNumOutputChannels();
 
     osc.initialise([](float x) { return std::sin(x); }, 128);
+    osc.prepare(spec);
     osc.setFrequency(440.0f);
 
     lfo.initialise([](float x) { return std::sin(x); }, 128);
+    lfo.prepare(spec);
     lfo.setFrequency(0.05f);
 
     gain.prepare(spec);

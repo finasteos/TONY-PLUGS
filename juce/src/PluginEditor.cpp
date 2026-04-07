@@ -87,17 +87,17 @@ void TonyPlugsEditor::paint(juce::Graphics& g)
     g.setFont(juce::Font(10.0f));
     g.drawText("LA LINEA EDITION", getLocalBounds().removeFromTop(75),
                juce::Justification::centred);
-
-    // ── Waveform Display ──
-    auto waveformArea = getLocalBounds().reduced(30).removeFromTop(150);
-    waveformArea.setY(80);
-    waveformComponent.setBounds(waveformArea);
 }
 
 // ── Layout ──
 void TonyPlugsEditor::resized()
 {
     auto bounds = getLocalBounds();
+
+    // ── Waveform Display ──
+    auto waveformArea = bounds.reduced(30).removeFromTop(150);
+    waveformArea.setY(80);
+    waveformComponent.setBounds(waveformArea);
 
     // Knob area: bottom half
     auto knobArea = bounds.removeFromBottom(240).reduced(40, 20);
