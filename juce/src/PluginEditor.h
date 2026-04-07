@@ -3,7 +3,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "PluginProcessor.h"
 #include "LookAndFeel/LinusLookAndFeel.h"
-#include "LookAndFeel/LinusWaveformComponent.h"
+#include "LookAndFeel/LineManager.h"
 
 class TonyPlugsEditor : public juce::AudioProcessorEditor,
                          private juce::Timer
@@ -37,8 +37,8 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> freqAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> wobbleAttachment;
 
-    // ── Waveform Component ──
-    LinusWaveformComponent waveformComponent;
+    // ── Infinite Line UI ──
+    std::unique_ptr<LineManager> lineManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TonyPlugsEditor)
 };

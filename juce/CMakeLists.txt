@@ -40,6 +40,8 @@ target_sources(TonyPlugs
         src/PluginEditor.cpp
         src/LookAndFeel/LinusLookAndFeel.cpp
         src/LookAndFeel/LinusWaveformComponent.cpp
+        src/LookAndFeel/LineManager.cpp
+        src/LookAndFeel/LineMutations/LineMutations.cpp
 )
 
 # ── Include Directories ──

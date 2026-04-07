@@ -79,11 +79,24 @@ Multi-pass rendering to simulate ink spreading on paper:
     Shadow: 8px offset brutalist (optional)
 ```
 
-## Animation Principles
-1. **Fluidity** — Motion feels like ink flowing on paper
-2. **Exaggeration** — Squash & stretch conveys emotion
-3. **Anticipation** — "Prepare" before action changes
-4. **Staging** — Focus on the line's interaction with the void
+## The "Infinite Line" Concept (by Tony)
+When it is possible, 90% of the UI should appear to be part of one unbroken very slightly varied white line. If the line must break, it should do so with "intent"—as if the artist lifted their pen.
+
+### Line Mutations (Components)
+Instead of traditional buttons and sliders, we use "Line Mutations":
+- **Faders (The Ridge)**: A vertical or horizontal fader is a "bump" in the line. Moving the fader stretches the peak of the bump.
+- **Knobs (The Loop)**: A knob is a circular loop that sits on the line. As the user turns it, the "knot" of the loop tightens or expands.
+- **Buttons (The Gap/Joint)**: A button can be a sharp "V" or a small break in the line. When clicked, the line "snaps" together or changes shape.
+- **Visualizers (The Pulse)**: Waveforms and meters shouldn't be separate boxes. The main line itself should vibrate, form peaks, or oscillate in real-time.
+
+### Motion & Responsivity
+- **Idle Animation**: The line should never be perfectly still. A slow "breathing" or "wiggling" (1-2px) keeps it alive.
+- **Squash & Stretch**: Dragging a fader quickly should "stretch" it before snapping into place.
+- **Anticipation & Overshoot**: When hitting maximum value, the line hits an invisible wall and bounces back slightly.
+- **The "Artist's Pen"**: The mouse cursor is a minimalist white pen tip that tugs the line.
+
+### Character (Mr. Linea)
+- **Reactive Mascots**: If audio clips, the character appears angry. If smooth, he leans back. Visual puns (e.g., bitcrusher = pixelated line).
 
 ## Typography
 - **Labels**: Inter/system, 900 weight, uppercase, 0.1em letter-spacing
