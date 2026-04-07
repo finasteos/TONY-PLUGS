@@ -116,23 +116,20 @@ void LoopKnot::setBounds(juce::Rectangle<float> b)
 juce::Path LoopKnot::generateLoopPath(float anchorX, float anchorY, float baseThickness)
 {
     juce::Path loop;
-    
+
+    if (bounds.isEmpty()) return loop;
+
     float tightness = calculateTightness();
     float radius = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.4f;
-    
-    // Loop size changes with value (tight = smaller loop)
+
     float loopRadius = radius * (1.2f - tightness * 0.5f);
-    
-    // Number of "wraps" in the knot
+
     int wraps = 2 + (int)(tightness * 2.0f);
-    
-    // Start at anchor
+
     loop.startNewSubPath(anchorX, anchorY);
-    
-    // Draw spiral/loop
+
     float angleStep = 0.15f;
-    float currentAngle = 0.0f;
-    
+
     for (int w = 0; w < wraps; w++)
     {
         for (float angle = 0.0f; angle < juce::MathConstants<float>::twoPi; angle += angleStep)
@@ -144,10 +141,9 @@ juce::Path LoopKnot::generateLoopPath(float anchorX, float anchorY, float baseTh
             loop.lineTo(x, y);
         }
     }
-    
-    // Close back to anchor
+
     loop.lineTo(anchorX, anchorY);
-    
+
     return loop;
 }
 
@@ -155,11 +151,9 @@ juce::Path LoopKnot::generateLoopPath(float anchorX, float anchorY, float baseTh
 
 PulseLine::PulseLine()
 {
-    displayData.resize(kTargetPointCount);
-    for (int i = 0; i < kTargetPointCount; i++)
-    {
-        displayData[i] = std::sin(i * 0.2f) * 0.5f + std::sin(i * 0.5f) * 0.2f;
-    }
+    for (auto& buf : displayData)
+        for (int i = 0; i < kTargetPointCount; i++)
+            buf[i] = std::sin(i * 0.2f) * 0.5f + std::sin(i * 0.5f) * 0.2f;
 }
 
 void PulseLine::setValue(float v)
@@ -187,41 +181,48 @@ void PulseLine::updateFromProcessor(TonyPlugsProcessor& processor)
 {
     if (!processor.waveformReady.load(std::memory_order_acquire))
         return;
-    
-    int readIdx = 1 - processor.writeBufferIndex.load(std::memory_order_acquire);
-    auto& buffer = processor.waveformBuffer[readIdx];
-    
-    int copyCount = juce::jmin((int)buffer.size(), kTargetPointCount);
+
+    int srcIdx = 1 - processor.writeBufferIndex.load(std::memory_order_acquire);
+    auto& srcBuffer = processor.waveformBuffer[srcIdx];
+
+    int writeIdx = writeBufferIndex.load(std::memory_order_relaxed);
+    int copyCount = juce::jmin((int)srcBuffer.size(), kTargetPointCount);
     for (int i = 0; i < copyCount; i++)
     {
-        displayData[i] = buffer[i];
+        displayData[writeIdx][i] = srcBuffer[i];
     }
+
+    std::atomic_thread_fence(std::memory_order_release);
+    writeBufferIndex.store(1 - writeIdx, std::memory_order_relaxed);
+    dataReady.store(true, std::memory_order_relaxed);
 }
 
 juce::Path PulseLine::generatePulsePath(float startX, float startY, float length, float baseThickness)
 {
     juce::Path pulse;
-    
-    if (displayData.empty()) return pulse;
-    
-    float step = length / (float)(displayData.size() - 1);
-    
-    for (size_t i = 0; i < displayData.size(); i++)
+
+    if (!dataReady.load(std::memory_order_acquire))
+        return pulse;
+
+    int readIdx = 1 - writeBufferIndex.load(std::memory_order_acquire);
+    const auto& localData = displayData[readIdx];
+
+    float step = length / (float)(kTargetPointCount - 1);
+
+    for (int i = 0; i < kTargetPointCount; i++)
     {
         float x = startX + i * step;
-        
-        // Dual-wobble for organic feel
+
         float wobble1 = std::sin(i * 0.1f + phase) * 3.0f * value;
         float wobble2 = std::sin(i * 0.03f + phase * 0.5f) * 1.5f * value;
-        
-        // Amplitude from audio data
-        float amplitude = displayData[i] * 40.0f;
-        
+
+        float amplitude = localData[i] * 40.0f;
+
         float y = startY + amplitude + wobble1 + wobble2;
-        
+
         if (i == 0) pulse.startNewSubPath(x, y);
         else        pulse.lineTo(x, y);
     }
-    
+
     return pulse;
 }

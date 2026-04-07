@@ -93,15 +93,21 @@ void LineManager::mouseDrag(const juce::MouseEvent& e)
         
         if (activeInteraction == InteractionTarget::GainRidge) {
             auto b = gainRidge->getBounds();
-            newValue = (e.position.y - b.getY()) / b.getHeight();
-        } else {
-            float dx = e.position.x - e.getPosition().x;
-            float dy = e.position.y - e.getPosition().y;
+            newValue = juce::jlimit(0.0f, 1.0f, (e.position.y - b.getY()) / b.getHeight());
+        } else if (activeInteraction == InteractionTarget::FreqLoop) {
+            auto centre = freqLoop->getBounds().getCentre();
+            float dx = e.position.x - centre.x;
+            float dy = e.position.y - centre.y;
             float delta = (dx + dy) * 0.002f;
-            newValue = param->load() + delta;
+            newValue = juce::jlimit(0.0f, 1.0f, param->load() + delta);
+        } else if (activeInteraction == InteractionTarget::WobbleLoop) {
+            auto centre = wobbleLoop->getBounds().getCentre();
+            float dx = e.position.x - centre.x;
+            float dy = e.position.y - centre.y;
+            float delta = (dx + dy) * 0.002f;
+            newValue = juce::jlimit(0.0f, 1.0f, param->load() + delta);
         }
         
-        newValue = juce::jlimit(0.0f, 1.0f, newValue);
         param->store(newValue);
         
         switch (activeInteraction) {
@@ -131,35 +137,38 @@ void LineManager::rebuildCombinedPath()
     float startY = 80.0f;
     
     combinedLine.startNewSubPath(startX, startY);
-    
     combinedLine.lineTo(startX + w * 0.25f, startY);
     
     float loop1X = startX + w * 0.4f;
     float loop1Y = startY + 30.0f;
+    combinedLine.startNewSubPath(loop1X, loop1Y);
     auto freqLoopPath = freqLoop->generateLoopPath(loop1X, loop1Y, kBaseThickness);
     combinedLine.addPath(freqLoopPath);
     
-    combinedLine.lineTo(startX + w * 0.5f, startY);
+    combinedLine.startNewSubPath(startX + w * 0.5f, startY);
     combinedLine.lineTo(startX + w * 0.5f, h * 0.3f);
     
     float loop2X = startX + w * 0.65f;
     float loop2Y = h * 0.3f + 30.0f;
+    combinedLine.startNewSubPath(loop2X, loop2Y);
     auto wobbleLoopPath = wobbleLoop->generateLoopPath(loop2X, loop2Y, kBaseThickness);
     combinedLine.addPath(wobbleLoopPath);
     
-    combinedLine.lineTo(startX + w * 0.75f, h * 0.3f);
+    combinedLine.startNewSubPath(startX + w * 0.75f, h * 0.3f);
     combinedLine.lineTo(startX + w * 0.85f, h * 0.5f);
     
     float ridgeX = startX + w * 0.92f;
     float ridgeBaseY = h * 0.3f;
+    combinedLine.startNewSubPath(ridgeX, ridgeBaseY);
     auto ridgePath = gainRidge->generateRidgePath(ridgeX, ridgeBaseY, kBaseThickness);
     combinedLine.addPath(ridgePath);
     
-    combinedLine.lineTo(w - 40.0f, h * 0.5f);
+    combinedLine.startNewSubPath(w - 40.0f, h * 0.5f);
     combinedLine.lineTo(w - 40.0f, h * 0.65f);
     combinedLine.lineTo(startX, h * 0.65f);
     combinedLine.lineTo(startX, startY);
     
+    combinedLine.startNewSubPath(startX, h * 0.8f);
     auto pulsePath = audioPulse->generatePulsePath(startX, h * 0.8f, w - 80.0f, kBaseThickness);
     combinedLine.addPath(pulsePath);
     
@@ -189,7 +198,7 @@ void LineManager::paint(juce::Graphics& g)
         juce::PathStrokeType::rounded));
     
     g.setColour(juce::Colours::white.withAlpha(0.5f));
-    g.setFont(juce::Font(10.0f, juce::Font::bold));
+    g.setFont(juce::Font{}.withHeight(10.0f).withTypefaceStyle("Bold"));
     g.drawText("THE INFINITE LINE",
                getLocalBounds().removeFromTop(30).reduced(20, 0),
                juce::Justification::centred);

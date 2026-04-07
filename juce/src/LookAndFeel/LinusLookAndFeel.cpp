@@ -53,7 +53,7 @@ void LinusLookAndFeel::drawRotarySlider(
 
     // ── Value Text ──
     g.setColour(juce::Colours::white);
-    g.setFont(juce::Font(20.0f, juce::Font::bold));
+    g.setFont(juce::Font{}.withHeight(20.0f).withTypefaceStyle("Bold"));
 
     juce::String valueText;
     if (slider.getMaximum() <= 1.0)

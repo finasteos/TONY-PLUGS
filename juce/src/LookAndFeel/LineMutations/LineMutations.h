@@ -49,7 +49,8 @@ public:
     juce::Path generatePulsePath(float startX, float startY, float length, float baseThickness);
 
 private:
-    std::vector<float> displayData;
-    std::atomic<int> readBuffer{0};
+    std::array<float, 128> displayData[2]{};
+    std::atomic<int> writeBufferIndex{0};
+    std::atomic<bool> dataReady{false};
     static constexpr int kTargetPointCount = 128;
 };

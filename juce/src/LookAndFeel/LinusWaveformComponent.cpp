@@ -91,7 +91,7 @@ void LinusWaveformComponent::paint(juce::Graphics& g)
         juce::PathStrokeType::rounded));
 
     g.setColour(juce::Colours::white.withAlpha(0.5f));
-    g.setFont(juce::Font(10.0f, juce::Font::bold));
+    g.setFont(juce::Font{}.withHeight(10.0f).withTypefaceStyle("Bold"));
     g.drawText("WOBBLY OSCILLOSCOPE",
                bounds.removeFromTop(24).reduced(12, 0),
                juce::Justification::topLeft);
