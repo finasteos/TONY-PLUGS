@@ -48,5 +48,14 @@ private:
     juce::AudioProcessorValueTreeState apvts;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+    // ── DSP Chain ──
+    juce::dsp::Oscillator<float> osc;
+    juce::dsp::Oscillator<float> lfo;
+    juce::dsp::Gain<float> gain;
+
+    double currentSampleRate = 44100.0;
+    float oscPhase = 0.0f;
+    float lfoPhase = 0.0f;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TonyPlugsProcessor)
 };

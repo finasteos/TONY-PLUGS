@@ -42,14 +42,36 @@ juce::AudioProcessorValueTreeState::ParameterLayout TonyPlugsProcessor::createPa
 }
 
 // ── Audio Processing ──
-void TonyPlugsProcessor::prepareToPlay(double /*sampleRate*/, int /*samplesPerBlock*/)
+void TonyPlugsProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // Initialize DSP chain here
+    currentSampleRate = sampleRate;
+
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
+    spec.numChannels = getTotalNumOutputChannels();
+
+    osc.initialise([](float x) { return std::sin(x); }, 128);
+    osc.setFrequency(440.0f);
+
+    lfo.initialise([](float x) { return std::sin(x); }, 128);
+    lfo.setFrequency(0.05f);
+
+    gain.prepare(spec);
+    gain.setGainLinear(1.0f);
+
+    oscPhase = 0.0f;
+    lfoPhase = 0.0f;
+
+    for (auto& buf : waveformBuffer)
+        buf.fill(0.0f);
 }
 
 void TonyPlugsProcessor::releaseResources()
 {
-    // Free DSP resources here
+    osc.reset();
+    lfo.reset();
+    gain.reset();
 }
 
 void TonyPlugsProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/)
@@ -58,21 +80,55 @@ void TonyPlugsProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
 
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    auto numSamples = buffer.getNumSamples();
 
-    // Clear unused output channels
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
+        buffer.clear(i, 0, numSamples);
 
-    // Apply gain
+    auto freqValue = apvts.getRawParameterValue("freq")->load();
+    auto wobbleValue = apvts.getRawParameterValue("wobble")->load();
     auto gainValue = apvts.getRawParameterValue("gain")->load();
-    buffer.applyGain(gainValue);
 
-    // Copy waveform data for editor visualization (lock-free double-buffering)
-    if (buffer.getNumSamples() > 0)
+    float lfoFreq = 0.05f + wobbleValue * 5.0f;
+    float lfoPhaseInc = static_cast<float>(lfoFreq / currentSampleRate);
+    float wobbleDepth = wobbleValue * 50.0f;
+
+    gain.setGainLinear(gainValue);
+
+    for (int sample = 0; sample < numSamples; ++sample)
+    {
+        float lfoPhaseNorm = lfoPhase - static_cast<float>(std::floor(lfoPhase));
+        auto lfoOutput = lfo.processSample(lfoPhaseNorm);
+
+        float freqMod = lfoOutput * wobbleDepth;
+        float modulatedFreq = juce::jlimit(20.0f, 2000.0f, freqValue + freqMod);
+        float samplePhaseInc = static_cast<float>(modulatedFreq / currentSampleRate);
+
+        float oscPhaseNorm = oscPhase - static_cast<float>(std::floor(oscPhase));
+        float sampleValue = osc.processSample(oscPhaseNorm);
+
+        oscPhase += samplePhaseInc;
+        if (oscPhase >= 1.0f) oscPhase -= static_cast<float>(std::floor(oscPhase));
+
+        lfoPhase += lfoPhaseInc;
+        if (lfoPhase >= 1.0f) lfoPhase -= static_cast<float>(std::floor(lfoPhase));
+
+        for (int ch = 0; ch < totalNumOutputChannels; ++ch)
+        {
+            float inputSample = (ch < totalNumInputChannels) ? buffer.getSample(ch, sample) : 0.0f;
+            buffer.setSample(ch, sample, inputSample + sampleValue);
+        }
+    }
+
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> ctx(block);
+    gain.process(ctx);
+
+    if (numSamples > 0)
     {
         int writeIdx = writeBufferIndex.load(std::memory_order_relaxed);
         auto* channelData = buffer.getReadPointer(0);
-        auto numToCopy = juce::jmin(buffer.getNumSamples(), (int)waveformBuffer[0].size());
+        auto numToCopy = juce::jmin(numSamples, (int)waveformBuffer[0].size());
 
         for (int i = 0; i < numToCopy; ++i)
             waveformBuffer[writeIdx][i] = channelData[i];
