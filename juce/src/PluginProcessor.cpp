@@ -117,8 +117,7 @@ void TonyPlugsProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
 
         for (int ch = 0; ch < totalNumOutputChannels; ++ch)
         {
-            float inputSample = (ch < totalNumInputChannels) ? buffer.getSample(ch, sample) : 0.0f;
-            buffer.setSample(ch, sample, inputSample + sampleValue);
+            buffer.setSample(ch, sample, sampleValue);
         }
     }
 
